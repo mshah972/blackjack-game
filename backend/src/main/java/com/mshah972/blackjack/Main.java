@@ -19,7 +19,7 @@ public class Main {
 
             switch (state.getPhase()) {
                 case PLAYER_TURN:
-                    System.out.print("Choose action - (H)it, (S)tand, (R)eshuffle, (Q)uit: ");
+                    System.out.print("Choose action - (H)it, (S)tand, (D)ouble, (U) Surrender, (R)eshuffle, (Q)uit: ");
                     break;
                 case DEALER_TURN:
                     System.out.println("Dealer's turn...");
@@ -37,6 +37,12 @@ public class Main {
                     break;
                 case "S":
                     gameService.playerStand();
+                    break;
+                case "D":
+                    gameService.doubleDown();
+                    break;
+                case "U":
+                    gameService.surrender();
                     break;
                 case "R":
                     gameService.shuffleDeck();

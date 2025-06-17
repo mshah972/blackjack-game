@@ -68,10 +68,12 @@ public class GameService {
             Card playerCard = gameState.getDeck().draw();
             gameState.getPlayerHand().addCard(playerCard);
             cardCountingService.updateCount(playerCard);
+            System.out.println("Player is dealt: " + playerCard);
 
             Card dealerCard = gameState.getDeck().draw();
             gameState.getDealerHand().addCard(dealerCard);
             cardCountingService.updateCount(dealerCard);
+            System.out.println("Dealer is dealt: " + dealerCard);
         }
 
         // Immediate Blackjack check
@@ -109,12 +111,11 @@ public class GameService {
     }
 
     /**
-     * Player stands: transition to dealer turn and execute dealer logic.
+     * Player stands: transition to dealer turn.
      */
     public void playerStand() {
         if (gameState.getPhase() == GameState.Phase.PLAYER_TURN) {
             gameState.setPhase(GameState.Phase.DEALER_TURN);
-            dealerTurn();
         }
     }
 
@@ -165,5 +166,40 @@ public class GameService {
     public void shuffleDeck() {
         gameState.getDeck().shuffle();
         cardCountingService.reset();
+    }
+
+    /**
+     * Player doubles down: draw one card, then end the round.
+     * Only allowed on the first two cards.
+     */
+    public void doubleDown() {
+        if (gameState.getPhase() != GameState.Phase.PLAYER_TURN ||
+            gameState.getPlayerHand().getCards().size() != 2) {
+            System.out.println("Double down is only allowed on your first two cards.");
+            return;
+        }
+        Card card = gameState.getDeck().draw();
+        System.out.println("Player doubles down and draws: " + card);
+        gameState.getPlayerHand().addCard(card);
+        cardCountingService.updateCount(card);
+        // After double down, end the round regardless of bust or not
+        if (gameState.getPlayerHand().isBust()) {
+            System.out.println("Player busted after double down with value: " + gameState.getPlayerHand().getValue());
+        }
+        gameState.setPhase(GameState.Phase.FINISHED);
+    }
+
+    /**
+     * Player surrenders: ends the round immediately.
+     * Only allowed on the first two cards.
+     */
+    public void surrender() {
+        if (gameState.getPhase() != GameState.Phase.PLAYER_TURN ||
+            gameState.getPlayerHand().getCards().size() != 2) {
+            System.out.println("Surrender is only allowed on your first two cards.");
+            return;
+        }
+        System.out.println("Player surrenders. Half your bet is returned.");
+        gameState.setPhase(GameState.Phase.FINISHED);
     }
 }
